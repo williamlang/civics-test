@@ -8,7 +8,7 @@ questions:
     - { id: 7, question: 'How many amendments does the Constitution have?', answers: [twenty-seven, 27] }
     - { id: 8, question: 'What did the Declaration of Independence do?', answers: ['annouced our independence (from Great Britain)', 'declared our independence (from Great Britain)', 'said that the Unied States is free (from Great Britain)'], count: 3 }
     - { id: 9, question: 'What are two rights in the Declaration of Independence?', answers: [life, liberty, 'pursuit of happiness'], count: 2 }
-    - { id: 10, question: 'What is freedom of religion?', answers: ['You can practive any religion, or not practice a religion'] }
+    - { id: 10, question: 'What is freedom of religion?', answers: ['You can practice any religion, or not practice a religion'] }
     - { id: 11, question: 'What is the economic system in the United States?', answers: ['capitalist economy', 'market economy'] }
     - { id: 12, question: 'What is the "rule of law"?', answers: ['Everyone must follow the law.', 'Leaders must obey the law.', 'Government must obey the law.', 'No one is above the law.'], count: 4 }
     - { id: 13, question: 'Name one branch or part of the government.', answers: [Congress, legislative, President, executive, 'the courts', judicial] }
