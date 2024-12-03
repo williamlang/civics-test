@@ -98,4 +98,4 @@ questions:
     - { id: 97, question: 'Why does the flag have 50 stars?', answers: ['one star for each state'] }
     - { id: 98, question: 'What is the name of the national anthem?', answers: ['The Star-Spangled Banner'] }
     - { id: 99, question: 'When do we celebrate Independence Day?', answers: ['July 4'] }
-    - { id: 100, question: 'Name two national U.S. holidays?', answers: ["New Year's Day", 'Martin Luther King, Jr. Day', 'Presidents\' Day', 'Memorial Day', 'Independence4 Day', 'Labor Day', 'Columbus Day', 'Veterans Day', 'Thanksgiving Day', 'Christmas'], count: 2 }
+    - { id: 100, question: 'Name two national U.S. holidays?', answers: ["New Year's Day", 'Martin Luther King, Jr. Day', "Presidents' Day", 'Memorial Day', 'Independence4 Day', 'Labor Day', 'Columbus Day', 'Veterans Day', 'Thanksgiving Day', 'Christmas'], count: 2 }
