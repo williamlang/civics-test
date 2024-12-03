@@ -85,7 +85,7 @@ questions:
     - { id: 84, question: 'What movement tried to end racial discrimination?', answers: ['civil rights'] }
     - { id: 85, question: 'What did Martin Luther King, Jr. do?', answers: ['fought for civil rights', 'worked for equality for all Americans'], count: 2 }
     - { id: 86, question: 'What major event happened on September 11th, 2001, in the United States?', answers: ['Terrorists attacked the United States'] }
-    - { id: 87, question: 'Name one American Indian tribe in the United States?', answers: [Apache] }
+    - { id: 87, question: 'Name one American Indian tribe in the United States?', answers: [Cherokee, Navajo, Sioux, Chippewa, Choctaw, Pueblo, Apache, Iroquois, Creek, Blackfeet, Seminole, Cheyenne, Awawak, Shawnee, Mohegan, Huropn, Oneida, Lakota, Crow, Teton, Hope, Inuit] }
     - { id: 88, question: 'Name one of the two longest rivers in the United States?', answers: ['Missouri River', 'Mississippi River'] }
     - { id: 89, question: 'What ocean is on the West Coast of the United States?', answers: [Pacific] }
     - { id: 90, question: 'What ocean on the East Coast of the United States?', answers: [Atlantic] }
