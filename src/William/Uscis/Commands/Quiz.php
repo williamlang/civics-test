@@ -61,15 +61,17 @@ class Quiz extends Command {
             }
 
             $foundCount = 0;
-            foreach ($asking['answers'] as $correctAnswer) {
-                foreach ($answers as $enteredAnswer) {
+            foreach ($answers as $enteredAnswer) {
+                foreach ($asking['answers'] as $correctAnswer) {                
                     $longest_string = $this->get_longest_common_subsequence($correctAnswer, $enteredAnswer);
                     $perc = round(strlen($longest_string) / strlen($correctAnswer), 2) * 100;
                     if (
                         strtolower($correctAnswer) == strtolower($enteredAnswer) ||
-                        $perc > 75
+                        $perc >= 75
                     ) {
                         $foundCount++;
+                        echo "foundCount++";
+                        break;
                     }
                 }
             }
