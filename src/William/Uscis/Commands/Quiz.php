@@ -70,7 +70,6 @@ class Quiz extends Command {
                         $perc >= 75
                     ) {
                         $foundCount++;
-                        echo "foundCount++";
                         break;
                     }
                 }
