@@ -79,7 +79,7 @@ questions:
     - { id: 78, question: 'Name one war fought by the United States in the 1900s', answers: ['World War I', 'World War II', 'Korean War', 'Vietnam War', 'Gulf War'] }
     - { id: 79, question: 'Who was President during World War I?', answers: ['Woodrow Wilson'] }
     - { id: 80, question: 'Who was President during the Great Depression and World War II?', answers: ['Franklin Roosevelt'] }
-    - { id: 81, question: 'Who did the United Stats fight in World War II?', answers: [Japan, Germany, Italy], count: 3 }
+    - { id: 81, question: 'Who did the United States fight in World War II?', answers: [Japan, Germany, Italy], count: 3 }
     - { id: 82, question: 'Before he was President, Eisenhower was a general. What war was he in?', answers: ['World War II'] }
     - { id: 83, question: 'During the Cold War, what was the main concern of the United States?', answers: [Communism] }
     - { id: 84, question: 'What movement tried to end racial discrimination?', answers: ['civil rights'] }
@@ -98,4 +98,4 @@ questions:
     - { id: 97, question: 'Why does the flag have 50 stars?', answers: ['one star for each state'] }
     - { id: 98, question: 'What is the name of the national anthem?', answers: ['The Star-Spangled Banner'] }
     - { id: 99, question: 'When do we celebrate Independence Day?', answers: ['July 4'] }
-    - { id: 100, question: 'Name two national U.S. holidays?', answers: ["New Year's Day", 'Memorial Day', 'Independence4 Day', 'Labor Day'], count: 2 }
+    - { id: 100, question: 'Name two national U.S. holidays?', answers: ["New Year's Day", 'Martin Luther King, Jr. Day', 'Presidents\' Day', 'Memorial Day', 'Independence4 Day', 'Labor Day', 'Columbus Day', 'Veterans Day', 'Thanksgiving Day', 'Christmas'], count: 2 }
