@@ -1,0 +1,19 @@
+{
+    "name": "william/uscis",
+    "type": "project",
+    "require": {
+        "symfony/console": "^7.2",
+        "symfony/yaml": "^7.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "William\\": "src/William/"
+        }
+    },
+    "authors": [
+        {
+            "name": "william",
+            "email": "william@icydata.hockey"
+        }
+    ]
+}
