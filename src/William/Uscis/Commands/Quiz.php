@@ -27,6 +27,18 @@ class Quiz extends Command {
             return Command::FAILURE;            
         }
 
+        $countFileName = __DIR__ . '/../../../../counts.yml';
+        $countYaml = Yaml::parseFile($countFileName);
+
+        $lowestQuestion = null;
+        $lowestQuestionCount = PHP_INT_MAX;
+        foreach ($countYaml['questions'] as $question) {
+            if ($lowestQuestionCount > $question['count']) {
+                $lowestQuestionCount = $question['count'];
+                $lowestQuestion = $question['id'];
+            }
+        }
+
         /** @var HelperQuestion $helper */
         $helper = $this->getHelper('question');
 
@@ -37,7 +49,12 @@ class Quiz extends Command {
             $questionCount++;
             $output->writeln("Question $questionCount: ");
             $output->writeln("========================================");
-            $random = mt_rand(0, sizeof($yaml['questions']) - 1);
+            if (!empty($lowestQuestion)) {
+                $random = $lowestQuestion;
+                $lowestQuestion = null;
+            } else {
+                $random = mt_rand(0, sizeof($yaml['questions']) - 1);
+            }
 
             while (in_array($random, $questionsAsked)) {
                 $random = mt_rand(0, sizeof($yaml['questions']) - 1);
@@ -66,6 +83,7 @@ class Quiz extends Command {
                     $longest_string = $this->get_longest_common_subsequence($correctAnswer, $enteredAnswer);
                     $perc = round(strlen($longest_string) / strlen($correctAnswer), 2) * 100;
                     if (
+                        (is_numeric($correctAnswer) && $correctAnswer == $enteredAnswer) ||
                         strtolower($correctAnswer) == strtolower($enteredAnswer) ||
                         $perc >= 75
                     ) {
@@ -81,13 +99,22 @@ class Quiz extends Command {
                 $output->writeln("/ = \ = / = \ / = \ = /");
                 $output->writeln("answers: " . join(", ", $asking['answers']));
                 $output->writeln("/ = \ = / = \ / = \ = /");
+            }
 
+            if (empty($countYaml['questions'][$random])) {
+                $countYaml['questions'][$random] = [
+                    'id' => $random,
+                    'count' => 1
+                ];
+            } else {
+                $countYaml['questions'][$random]['count']++;
             }
 
             $output->writeln("========================================");
             $output->writeln("\n");
         }        
 
+        file_put_contents($countFileName, Yaml::dump($countYaml));
 
         $output->writeln($correct . " / " . $questionCount . " = " . round($correct / $questionCount, 2) * 100 . "%");
 
