@@ -10,9 +10,12 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Yaml\Yaml;
+use William\Uscis\Helper;
 
 #[AsCommand(name: 'app:quiz')]
 class Quiz extends Command {
+
+    const QUESTION_COUNT = 10;
 
     protected function configure(): void {
         $this
@@ -21,47 +24,47 @@ class Quiz extends Command {
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int {
-        $fileName = __DIR__ . '/../../../../questions.yml';
-        $yaml = Yaml::parseFile($fileName);
-        if (empty($yaml)) {
-            return Command::FAILURE;            
-        }
+        $yaml = Helper::loadQuestions();
+        $countYaml = Helper::loadCounts();
+        $resultsYaml = Helper::loadResults();
 
-        $countFileName = __DIR__ . '/../../../../counts.yml';
-        $countYaml = Yaml::parseFile($countFileName);
+        $questionCopy = $countYaml['questions'];
+        
+        uasort($questionCopy, Helper::sortQuestionsByCount());
+        $lowestQuestion = array_key_first($questionCopy);
 
-        $lowestQuestion = null;
-        $lowestQuestionCount = PHP_INT_MAX;
-        foreach ($countYaml['questions'] as $question) {
-            if ($lowestQuestionCount > $question['count']) {
-                $lowestQuestionCount = $question['count'];
-                $lowestQuestion = $question['id'];
-            }
-        }
+        uasort($questionCopy, Helper::sortCountsByPerc());
+        $worstQuestion = array_key_first($questionCopy);
 
         /** @var HelperQuestion $helper */
         $helper = $this->getHelper('question');
 
-        $questionCount = 0;
+        $questionsToAsk = [];
+        if (is_numeric($worstQuestion)) {
+            $questionsToAsk[] = $worstQuestion;
+        }
+
+        if (is_numeric($lowestQuestion)) {
+            $questionsToAsk[] = $lowestQuestion;
+        }
+
+        $questionsToAsk = array_unique($questionsToAsk);
+
+        while (sizeof($questionsToAsk) < self::QUESTION_COUNT) {
+            $random = mt_rand(0, sizeof($yaml['questions']) - 1);
+
+            if (!in_array($random, $questionsToAsk)) {
+                $questionsToAsk[] = $random;
+            }
+        }
+
         $correct = 0;
-        $questionsAsked = [];
-        while ($questionCount < 10) {
-            $questionCount++;
-            $output->writeln("Question $questionCount: ");
+        $result = [];
+        foreach ($questionsToAsk as $i => $questionId) {
+            $output->writeln("Question " . $i + 1 ." : ");
             $output->writeln("========================================");
-            if (!empty($lowestQuestion)) {
-                $random = $lowestQuestion;
-                $lowestQuestion = null;
-            } else {
-                $random = mt_rand(0, sizeof($yaml['questions']) - 1);
-            }
 
-            while (in_array($random, $questionsAsked)) {
-                $random = mt_rand(0, sizeof($yaml['questions']) - 1);
-            }
-
-            $asking = $yaml['questions'][$random];
-            $questionsAsked[] = $random;
+            $asking = $yaml['questions'][$questionId];
             $output->writeln($asking['question']);
 
             $count = !empty($asking['count']) ? $asking['count'] : 1;
@@ -79,13 +82,16 @@ class Quiz extends Command {
 
             $foundCount = 0;
             foreach ($answers as $enteredAnswer) {
-                foreach ($asking['answers'] as $correctAnswer) {                
-                    $longest_string = $this->get_longest_common_subsequence($correctAnswer, $enteredAnswer);
-                    $perc = round(strlen($longest_string) / strlen($correctAnswer), 2) * 100;
+                foreach ($asking['answers'] as $correctAnswer) {           
+                    $perc = 0;
+                    if (!is_numeric($correctAnswer)) {
+                        $longest_string = Helper::get_longest_common_subsequence($correctAnswer, $enteredAnswer);
+                        $perc = round(strlen($longest_string) / strlen($correctAnswer), 2) * 100;
+                    }                   
+                    
                     if (
-                        (is_numeric($correctAnswer) && $correctAnswer == $enteredAnswer) ||
                         strtolower($correctAnswer) == strtolower($enteredAnswer) ||
-                        $perc >= 75
+                        $perc >= 60
                     ) {
                         $foundCount++;
                         break;
@@ -93,98 +99,44 @@ class Quiz extends Command {
                 }
             }
 
+            if (empty($countYaml['questions'][$questionId])) {
+                $countYaml['questions'][$questionId] = [
+                    'id' => $questionId,
+                    'count' => 0,
+                    'correct' => 0
+                ];
+            }
+
+            $countYaml['questions'][$questionId]['count']++;
+            $result['questions'][] = $questionId;
+
             if ($foundCount == $count) {
                 $correct++;
+                $countYaml['questions'][$questionId]['correct']++;
             } else {
                 $output->writeln("/ = \ = / = \ / = \ = /");
                 $output->writeln("answers: " . join(", ", $asking['answers']));
                 $output->writeln("/ = \ = / = \ / = \ = /");
             }
 
-            if (empty($countYaml['questions'][$random])) {
-                $countYaml['questions'][$random] = [
-                    'id' => $random,
-                    'count' => 1
-                ];
-            } else {
-                $countYaml['questions'][$random]['count']++;
-            }
-
             $output->writeln("========================================");
             $output->writeln("\n");
         }        
 
-        file_put_contents($countFileName, Yaml::dump($countYaml));
+        Helper::saveCounts($countYaml);
 
-        $output->writeln($correct . " / " . $questionCount . " = " . round($correct / $questionCount, 2) * 100 . "%");
+        $output->writeln($correct . " / " . self::QUESTION_COUNT . " = " . round($correct / self::QUESTION_COUNT, 2) * 100 . "%");
+        $result['correct'] = $correct;
+        $resultsYaml['results'][] = $result;
 
-        if ($correct / $questionCount >= 0.6) {
+        Helper::saveResults($resultsYaml);
+
+        if ($correct / self::QUESTION_COUNT >= 0.6) {
             $output->writeln("Pass!");
             return Command::SUCCESS;
         } else {
             $output->writeln("Fail!");
             return Command::FAILURE;
         }
-    }
-
-    // https://en.wikibooks.org/wiki/Algorithm_Implementation/Strings/Longest_common_substring#PHP
-    private function get_longest_common_subsequence($string_1, $string_2) {
-        $string_1_length = strlen($string_1);
-        $string_2_length = strlen($string_2);
-        $return          = '';
-        
-        if ($string_1_length === 0 || $string_2_length === 0)
-        {
-            // No similarities
-            return $return;
-        }
-        
-        $longest_common_subsequence = array();
-        
-        // Initialize the CSL array to assume there are no similarities
-        $longest_common_subsequence = array_fill(0, $string_1_length, array_fill(0, $string_2_length, 0));
-        
-        $largest_size = 0;
-        
-        for ($i = 0; $i < $string_1_length; $i++)
-        {
-            for ($j = 0; $j < $string_2_length; $j++)
-            {
-                // Check every combination of characters
-                if ($string_1[$i] === $string_2[$j])
-                {
-                    // These are the same in both strings
-                    if ($i === 0 || $j === 0)
-                    {
-                        // It's the first character, so it's clearly only 1 character long
-                        $longest_common_subsequence[$i][$j] = 1;
-                    }
-                    else
-                    {
-                        // It's one character longer than the string from the previous character
-                        $longest_common_subsequence[$i][$j] = $longest_common_subsequence[$i - 1][$j - 1] + 1;
-                    }
-                    
-                    if ($longest_common_subsequence[$i][$j] > $largest_size)
-                    {
-                        // Remember this as the largest
-                        $largest_size = $longest_common_subsequence[$i][$j];
-                        // Wipe any previous results
-                        $return       = '';
-                        // And then fall through to remember this new value
-                    }
-                    
-                    if ($longest_common_subsequence[$i][$j] === $largest_size)
-                    {
-                        // Remember the largest string(s)
-                        $return = substr($string_1, $i - $largest_size + 1, $largest_size);
-                    }
-                }
-                // Else, $CSL should be set to 0, which it was already initialized to
-            }
-        }
-        
-        // Return the list of matches
-        return $return;
     }
 }

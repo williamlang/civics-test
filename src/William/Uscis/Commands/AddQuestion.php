@@ -10,6 +10,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Yaml\Yaml;
+use William\Uscis\Helper;
 
 #[AsCommand(name: 'app:add-question')]
 class AddQuestion extends Command {
@@ -21,11 +22,7 @@ class AddQuestion extends Command {
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int {
-        $fileName = __DIR__ . '/../../../../questions.yml';
-        $yaml = Yaml::parseFile($fileName);
-        if (empty($yaml)) {
-            return Command::FAILURE;
-        }
+        $yaml = Helper::loadQuestions();
 
         /** @var HelperQuestion $helper */
         $helper = $this->getHelper('question');
@@ -64,8 +61,8 @@ class AddQuestion extends Command {
         }
 
         $yaml['questions'][] = $addedQuestion;
-        
-        file_put_contents($fileName, Yaml::dump($yaml));
+
+        Helper::saveQuestions($yaml);
 
         return Command::SUCCESS;
     }
