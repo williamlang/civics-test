@@ -90,7 +90,7 @@ questions:
     - { id: 89, question: 'What ocean is on the West Coast of the United States?', answers: [Pacific] }
     - { id: 90, question: 'What ocean on the East Coast of the United States?', answers: [Atlantic] }
     - { id: 91, question: 'Name one U.S. territory', answers: ['Puerto Rico', 'U.S. Virgin Island', 'American Samoa', 'Northern Mariana Islands', Guam] }
-    - { id: 92, question: 'Name one state that borders Canada?', answers: ['New York'] }
+    - { id: 92, question: 'Name one state that borders Canada?', answers: [Maine, 'New Hampshire', Vermont, 'New York', Pennsylvania, Ohio, Michigan, Minnesota, 'North Dakota', Montana, Idaho, Washington, Alaska] }
     - { id: 93, question: 'Name one state that borders Mexico', answers: [Texas, Arizona, California, 'New Mexico'] }
     - { id: 94, question: 'What is the capital of the United States?', answers: ['Washington, D.C.'] }
     - { id: 95, question: 'Where is the Statue of Liberty?', answers: ['New York Harbor', 'Liberty Island'] }
