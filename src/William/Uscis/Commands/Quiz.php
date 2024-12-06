@@ -7,6 +7,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Yaml\Yaml;
@@ -20,13 +21,16 @@ class Quiz extends Command {
     protected function configure(): void {
         $this
             // the command description shown when running "php bin/console list"
-            ->setDescription('Asks a question');
+            ->setDescription('Asks a question')
+            ->addOption('all', null, InputOption::VALUE_OPTIONAL, "Ask all questions.");
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int {
         $yaml = Helper::loadQuestions();
         $countYaml = Helper::loadCounts();
         $resultsYaml = Helper::loadResults();
+
+        $all = $input->getOption('all');
 
         $questionCopy = $countYaml['questions'];
         
@@ -50,20 +54,16 @@ class Quiz extends Command {
 
         $questionsToAsk = array_unique($questionsToAsk);
 
-        while (sizeof($questionsToAsk) < self::QUESTION_COUNT) {
-            $random = mt_rand(0, sizeof($yaml['questions']) - 1);
-
-            if (!in_array($random, $questionsToAsk)) {
-                $questionsToAsk[] = $random;
-            }
-        }
+        shuffle($yaml['questions']);
 
         $correct = 0;
         $result = [];
-        foreach ($questionsToAsk as $i => $questionId) {
+        $questionCount = $all == null ? 100 : self::QUESTION_COUNT;
+        for ($i = 0; $i < $questionCount; $i++) {
             $output->writeln("Question " . $i + 1 ." : ");
             $output->writeln("========================================");
 
+            $questionId = $i;
             $asking = $yaml['questions'][$questionId];
             $output->writeln($asking['question']);
 
@@ -125,13 +125,13 @@ class Quiz extends Command {
 
         Helper::saveCounts($countYaml);
 
-        $output->writeln($correct . " / " . self::QUESTION_COUNT . " = " . round($correct / self::QUESTION_COUNT, 2) * 100 . "%");
+        $output->writeln($correct . " / " . $questionCount . " = " . round($correct / $questionCount, 2) * 100 . "%");
         $result['correct'] = $correct;
         $resultsYaml['results'][] = $result;
 
         Helper::saveResults($resultsYaml);
 
-        if ($correct / self::QUESTION_COUNT >= 0.6) {
+        if ($correct / $questionCount >= 0.6) {
             $output->writeln("Pass!");
             return Command::SUCCESS;
         } else {
