@@ -16,19 +16,27 @@ use William\Uscis\Helper;
 #[AsCommand(name: 'app:ask')]
 class Ask extends Command {
 
+    const WRONG = 'wrong';
+    const LOW = 'low';
+
     protected function configure(): void {
         $this
             // the command description shown when running "php bin/console list"
             ->setDescription('Asks a question')
-            ->addOption('wrong', null, InputOption::VALUE_OPTIONAL, "Ask a question you've gotten wrong in the past.");
+            ->addArgument('mode', InputArgument::OPTIONAL, 'Two modes [wrong] for least answered correctly and [low] for low ask count.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int {
         $yaml = Helper::loadQuestions();
         $countYaml = Helper::loadCounts();
 
-        if ($input->getOption('wrong') === null) {
+        $mode = $input->getArgument('mode');
+
+        if ($mode == self::WRONG) {
             uasort($countYaml['questions'], Helper::sortCountsByPerc());
+            $random = array_key_first($countYaml['questions']);
+        } else if ($mode == self::LOW) {
+            uasort($countYaml['questions'], Helper::sortQuestionsByCount());
             $random = array_key_first($countYaml['questions']);
         } else {
             $random = mt_rand(0, sizeof($yaml['questions']) - 1);
@@ -48,7 +56,6 @@ class Ask extends Command {
         while (sizeof($answers) < $count) {
             $question = new Question("Answer: ");
             $answerValue = $helper->ask($input, $output, $question);
-
             $answers[] = $answerValue;
         }
 

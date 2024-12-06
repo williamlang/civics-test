@@ -26,14 +26,17 @@ class Helper {
     }
 
     public static function saveQuestions($array) : void {
+        ksort($array['questions'], SORT_NUMERIC);
         file_put_contents(self::QUESTIONS_FILE, Yaml::dump($array));
     }
 
     public static function saveCounts($array) : void {
+        ksort($array['questions'], SORT_NUMERIC);
         file_put_contents(self::COUNTS_FILE, Yaml::dump($array));
     }
 
     public static function saveResults($array) : void {
+        ksort($array['results'], SORT_NUMERIC);
         file_put_contents(self::RESULTS_FILE, Yaml::dump($array));
     }
 
